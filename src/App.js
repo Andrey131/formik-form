@@ -1,7 +1,12 @@
 import LoginPage from "./components/LoginPage";
+import { ChakraProvider } from "@chakra-ui/react";
 
 function App() {
-  return <LoginPage />;
+  return (
+    <ChakraProvider>
+      <LoginPage />
+    </ChakraProvider>
+  );
 }
 
 export default App;
