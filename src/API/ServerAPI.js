@@ -39,11 +39,9 @@ const serverValidationSchema = Yup.object({
 export const loginAPI = {
   async validate(values) {
     await sleep(1000);
-    console.log(values);
     return serverValidationSchema
       .validate(values, { abortEarly: false })
       .then((values) => {
-        console.log("good_s");
         return { isValid: true, values: values };
       })
       .catch(function (err) {

@@ -27,23 +27,24 @@ const alreadyInUseEmail = [];
 const alreadyInUseLogin = [];
 
 const LoginPage = () => {
-  const [schema, setSchema] = useState(validationSchema);
+  const [isDisabled, toggleSubmitButton] = useState(false);
 
   return (
     <Formik
       initialValues={initialValues}
       onSubmit={async (values, { setFieldError }) => {
         await loginAPI.validate(values).then((response) => {
-          response.isValid ? console.log("good") : console.log("bad");
-          console.log(response);
-          response.errors.forEach((item) => {
-            setFieldError(item.field, item.errorType);
-            if (item.field === "email") alreadyInUseEmail.push(item.value);
-            if (item.field === "login") alreadyInUseLogin.push(item.value);
-          });
+          return response.isValid
+            ? toggleSubmitButton(false)
+            : (toggleSubmitButton(true),
+              response.errors.forEach((item) => {
+                setFieldError(item.field, item.errorType);
+                if (item.field === "email") alreadyInUseEmail.push(item.value);
+                if (item.field === "login") alreadyInUseLogin.push(item.value);
+              }));
         });
       }}
-      validationSchema={schema}
+      validationSchema={validationSchema}
       validate={(values) => {
         let errors = {};
         if (alreadyInUseEmail.includes(values.email)) {
@@ -55,7 +56,7 @@ const LoginPage = () => {
         return errors;
       }}
     >
-      {({ handleSubmit }) => (
+      {({ handleSubmit, isValid }) => (
         <Box w={400} ml="auto" mr="auto" as="form" onSubmit={handleSubmit}>
           <InputControl
             name="login"
@@ -75,7 +76,9 @@ const LoginPage = () => {
             inputProps={{ placeholder: "Enter uou password", type: "password" }}
             m={4}
           />
-          <SubmitButton m={4}>Submit</SubmitButton>
+          <SubmitButton m={4} disabled={!isValid}>
+            Submit
+          </SubmitButton>
         </Box>
       )}
     </Formik>
