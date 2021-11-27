@@ -1,59 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box } from "@chakra-ui/layout";
 import { Formik } from "formik";
 import { InputControl, SubmitButton } from "formik-chakra-ui";
-import * as Yup from "yup";
 import { loginAPI } from "../API/ServerAPI";
 
-const initialValues = {
-  login: "",
-  email: "",
-  password: "",
-};
-
-let validationSchema = Yup.object({
-  login: Yup.string().required(),
-  email: Yup.string().email(),
-  password: Yup.string()
-    .required("No password provided.")
-    .min(8, "Password is too short - should be 8 chars minimum.")
-    .matches(
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]/,
-      "Must Contain One Uppercase, One Lowercase, One Number and one special case Character"
-    ),
-});
-
-const alreadyInUseEmail = [];
-const alreadyInUseLogin = [];
-
-const LoginPage = () => {
-  const [isDisabled, toggleSubmitButton] = useState(false);
-
+const LoginPage = (props) => {
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={props.initialValues}
       onSubmit={async (values, { setFieldError }) => {
         await loginAPI.validate(values).then((response) => {
-          return response.isValid
-            ? toggleSubmitButton(false)
-            : (toggleSubmitButton(true),
-              response.errors.forEach((item) => {
-                setFieldError(item.field, item.errorType);
-                if (item.field === "email") alreadyInUseEmail.push(item.value);
-                if (item.field === "login") alreadyInUseLogin.push(item.value);
-              }));
+          props.submit(response).errors.forEach((item) => {
+            setFieldError(item.field, item.errorType);
+          });
         });
       }}
-      validationSchema={validationSchema}
+      validationSchema={props.validationSchema}
       validate={(values) => {
-        let errors = {};
-        if (alreadyInUseEmail.includes(values.email)) {
-          errors.email = "Email address already in use";
-        }
-        if (alreadyInUseLogin.includes(values.login)) {
-          errors.login = "Login already in use";
-        }
-        return errors;
+        return props.validationFunction(values);
       }}
     >
       {({ handleSubmit, isValid }) => (

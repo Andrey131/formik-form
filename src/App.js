@@ -1,10 +1,10 @@
-import LoginPage from "./components/LoginPage";
 import { ChakraProvider } from "@chakra-ui/react";
+import LoginPageContainer from "./components/LoginPageContainer";
 
 function App() {
   return (
     <ChakraProvider>
-      <LoginPage />
+      <LoginPageContainer />
     </ChakraProvider>
   );
 }
